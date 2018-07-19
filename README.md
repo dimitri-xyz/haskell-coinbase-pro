@@ -1,4 +1,4 @@
-Haskell language access library for the GDAX Exchange (formerly Coinbase).
+Haskell language access library for the Coinbase Pro exchange (formerly GDAX).
 
 Allows the use of:
 

@@ -97,7 +97,7 @@ data ExchangeMessage
         -- Filled market orders limited by funds will not have a price but may have remaining_size
         -- Filled limit orders may have a price but not a remaining_size (assumed zero)
         -- CURRENTLY ** `remaining_size` reported in Done messages is sometimes incorrect **
-        -- This appears to be bug at GDAX. I've told them about it.
+        -- This appears to be bug at Coinbase. I've told them about it.
         , msgMaybePrice   :: Maybe Price
         , msgMaybeRemSize :: Maybe Size
         }
