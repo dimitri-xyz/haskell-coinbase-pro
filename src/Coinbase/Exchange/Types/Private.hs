@@ -423,7 +423,7 @@ instance FromJSON Order where
                 <$> m .: "id"
                 <*> m .: "product_id"
                 <*> m .: "status"
-                <*> m .: "stp"
+                <*> m .:? "stp" .!= DecrementAndCancel
                 <*> m .: "settled"
                 <*> m .: "side"
                 <*> m .: "created_at"
