@@ -68,19 +68,19 @@ type Endpoint = String
 type Path     = String
 
 website :: Endpoint
-website = "https://public.sandbox.gdax.com"
+website = "https://public.sandbox.pro.coinbase.com"
 
 sandboxRest :: Endpoint
-sandboxRest = "https://api-public.sandbox.gdax.com"
+sandboxRest = "https://api-public.sandbox.pro.coinbase.com"
 
 sandboxSocket :: Endpoint
-sandboxSocket = "ws-feed-public.sandbox.gdax.com"
+sandboxSocket = "ws-feed-public.sandbox.pro.coinbase.com"
 
 liveRest :: Endpoint
-liveRest = "https://api.gdax.com"
+liveRest = "https://api.pro.coinbase.com"
 
 liveSocket :: Endpoint
-liveSocket = "ws-feed.gdax.com"
+liveSocket = "ws-feed.pro.coinbase.com"
 
 -- Coinbase needs to provide real BTC transfers through the exchange API soon,
 -- making 2 API calls with 2 sets of authentication credentials is ridiculous.
