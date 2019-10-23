@@ -24,7 +24,6 @@ import           Coinbase.Exchange.Types.Core hiding (OrderStatus (..))
 -------------------------------------------------------------------------------
 
 
-
 -------------------------------------------------------------------------------
 -- | Messages we can send to the exchange
 data SendExchangeMessage
@@ -193,7 +192,7 @@ instance FromJSON ExchangeMessage where
                     Just _ -> limit <|> market
             "received" -> do
                 typ  <- m .:  "order_type"
-                mcid <- m .:? "client_oid"
+                mcid <- m .:? "client_oid" .!= Nothing -- Set to Nothing when field is present but UUID parse fails, typically when field is set to empty string
                 case typ of
                     Limit -> ReceivedLimit
                                 <$> m .: "time"
