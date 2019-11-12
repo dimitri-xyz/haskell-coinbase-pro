@@ -62,6 +62,7 @@ reencodeSocket conf market = subscribe (apiType conf) market $ \conn -> do
 
 decodeEncode :: WS.Connection -> IO ()
 decodeEncode conn = do
+    setHeartbeat True conn
     ds <- WS.receiveData conn
     let res = eitherDecode ds
     case res :: Either String ExchangeMessage of
@@ -80,6 +81,7 @@ decodeEncode conn = do
 
 receiveAndDecode :: WS.Connection -> IO ()
 receiveAndDecode conn = do
+    setHeartbeat True conn
     ds <- WS.receiveData conn
     let res = eitherDecode {- $ trace (show ds) -} ds
     case res :: Either String ExchangeMessage of

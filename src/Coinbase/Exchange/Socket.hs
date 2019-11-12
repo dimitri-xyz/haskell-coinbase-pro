@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Coinbase.Exchange.Socket
-    ( subscribe
+    ( setHeartbeat
+    , subscribe
     , module Coinbase.Exchange.Types.Socket
     ) where
 

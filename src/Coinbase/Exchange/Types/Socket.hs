@@ -133,10 +133,10 @@ instance NFData ExchangeMessage
 instance FromJSON ExchangeMessage where
     parseJSON (Object m) = do
         msgtype <- m .: "type"
-        -- TO DO: `HeartbeatReq` and `Subscribe` message types are missing as those are
-        -- never received by the client.
-        case (msgtype :: String) of
-            "hearbeat"-> Heartbeat
+        -- TO DO: `Subscribe` message type is missing as it is never received
+        -- by the client.
+        case (msgtype :: Text) of
+            "heartbeat"-> Heartbeat
                 <$> m .: "time"
                 <*> m .: "product_id"
                 <*> m .: "sequence"
@@ -336,3 +336,11 @@ instance ToJSON ExchangeMessage where
                     Right (ms,f) -> case ms of
                                 Nothing -> ( []            , ["funds" .= f] )
                                 Just s' -> ( ["size" .= s'], ["funds" .= f] )
+
+    toJSON Heartbeat{..} = object
+       [ "type"          .= ("heartbeat" :: Text)
+       , "time"          .= msgTime
+       , "product_id"    .= msgProductId
+       , "sequence"      .= msgSequence
+       , "last_trade_id" .= msgLastTradeId
+       ]
