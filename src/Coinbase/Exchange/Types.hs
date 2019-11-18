@@ -31,6 +31,7 @@ module Coinbase.Exchange.Types
     , mkToken
 
     , ExchangeConf (..)
+    , configure
     , ExchangeFailure (..)
 
     , Exchange
@@ -50,12 +51,14 @@ import           Control.Monad.Catch
 import           Control.Monad.Except
 import           Control.Monad.Reader
 import           Control.Monad.Trans.Resource
-import           Data.ByteString
+import           Data.ByteString              (ByteString)
 import qualified Data.ByteString.Base64       as Base64
+import qualified Data.ByteString.Char8        as Char8
 import           Data.Data
 import           Data.Text                    (Text)
 import           GHC.Generics
 import           Network.HTTP.Conduit
+import           System.Environment           (getEnv)
 
 -- API URLs
 
@@ -156,3 +159,27 @@ getManager :: (MonadReader ExchangeConf m) => m Manager
 getManager = do
         conf <- ask
         return $ manager conf
+
+-- Read environment variables and produce a configuration using a new TLS
+-- manager, or throw an exception.
+configure :: IO ExchangeConf
+configure = do
+        mgr        <- newManager tlsManagerSettings
+
+        sandbox    <- getEnv "COINBASE_PRO_SANDBOX"
+
+        let getEnvChar8 = fmap Char8.pack . getEnv
+        key        <- getEnvChar8 "COINBASE_PRO_KEY"
+        secret     <- getEnvChar8 "COINBASE_PRO_SECRET"
+        passphrase <- getEnvChar8 "COINBASE_PRO_PASSPHRASE"
+
+        let api = case sandbox of
+                    "FALSE" -> Live
+                    "TRUE"  -> Sandbox
+                    _       -> error "Set COINBASE_PRO_SANDBOX to TRUE to use \
+                                     \the sandbox server or FALSE to use the \
+                                     \live server."
+
+        case mkToken key secret passphrase of
+            Right token -> return $ ExchangeConf mgr (Just token) api
+            Left  e     -> error e
