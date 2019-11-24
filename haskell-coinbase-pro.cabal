@@ -1,4 +1,4 @@
-name:                coinbase-exchange
+name:                haskell-coinbase-pro
 version:             0.4.0.0
 synopsis:            Connector library for the coinbase exchange.
 description:         Access library for the coinbase exchange. Allows the use
@@ -84,7 +84,7 @@ executable sandbox
                     ,   scientific
                     ,   unordered-containers
 
-                    ,   coinbase-exchange
+                    ,   haskell-coinbase-pro
 
 test-suite test-coinbase
     type:               exitcode-stdio-1.0
@@ -117,4 +117,4 @@ test-suite test-coinbase
                     ,   aeson
                     ,   unordered-containers
 
-                    ,   coinbase-exchange
+                    ,   haskell-coinbase-pro

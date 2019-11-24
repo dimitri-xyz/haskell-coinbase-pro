@@ -6,7 +6,7 @@ The library's goal is to provide the basic functionality for automated trading i
 
 Use of this software is provided under an MIT license, on an "as-is" basis, and without any warranty. Users should be aware that this software is a work in progress, and they should expect unimplemented or buggy functionality, including bugs that may lead to financial losses if used with a funded account on Coinbase Pro's live trading server.
 
-Please report bugs and request features on the [issue tracker](https://github.com/dimitri-xyz/coinbase-pro-exchange/issues). Feedback and pull requests are welcome.
+Please report bugs and request features on the [issue tracker](https://github.com/dimitri-xyz/haskell-coinbase-pro/issues). Feedback and pull requests are welcome.
 
 Because there is no FIX engine available in Haskell, the FIX API is beyond the scope of this project. Note also that this library does not implement any functionality provided by the [other Coinbase APIs](https://developers.coinbase.com) for wallets and e-commerce.
 
@@ -17,9 +17,9 @@ An up-to-date version of this library is not currently available on Hackage. To 
 ### Download and build with cabal
 
 ```
-> git clone https://github.com/dimitri-xyz/coinbase-pro-exchange.git
+> git clone https://github.com/dimitri-xyz/haskell-coinbase-pro.git
   ...
-> cd coinbase-pro-exchange
+> cd haskell-coinbase-pro
 > cabal install
   ...
 > cabal build
@@ -29,9 +29,9 @@ An up-to-date version of this library is not currently available on Hackage. To 
 ### Download and build with stack
 
 ```
-> git clone https://github.com/dimitri-xyz/coinbase-pro-exchange.git
+> git clone https://github.com/dimitri-xyz/haskell-coinbase-pro.git
   ...
-> cd coinbase-pro-exchange
+> cd haskell-coinbase-pro
 > stack build
   ...
 ```
