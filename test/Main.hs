@@ -37,5 +37,13 @@ tests :: ExchangeConf -> TestTree
 tests conf = testGroup "Tests"
         [ MarketData.tests conf
         , Private.tests    conf
-        , Socket.tests conf (ProductId "ETH-BTC") 
+        , Socket.tests     conf products Socket.allChannels
         ]
+
+-- TODO: Make this a list of all products
+products = [ ProductId "ETH-BTC"
+           , ProductId "ETH-EUR"
+           , ProductId "ETH-USD"
+           , ProductId "BTC-EUR"
+           , ProductId "BTC-USD"
+           ]

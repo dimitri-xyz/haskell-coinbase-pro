@@ -36,6 +36,8 @@ instance ToJSON Price where
 instance Show Price where
     show (Price (CoinScientific v)) = formatScientific Fixed Nothing v
 
+type BestPrice = Price
+
 newtype Size = Size { unSize :: CoinScientific }
     deriving (Eq, Ord, Num, Fractional, Real, RealFrac, Read, Data, Typeable, Generic, NFData, Hashable, FromJSON)
 instance ToJSON Size where
@@ -136,7 +138,8 @@ instance FromJSON Reason where
 ----
 
 newtype CoinScientific = CoinScientific { unCoinScientific :: Scientific }
-    deriving (Eq, Ord, Num, Fractional, Real, RealFrac, Show, Read, Data, Typeable, NFData, Hashable)
+    deriving (Eq, Ord, Num, Fractional, Real, RealFrac, Show, Read, Data
+             , Typeable, NFData, Hashable, Generic)
 
 -- Shows 8 decimal places (needs to be adapted for prices and costs in USD)
 instance ToJSON CoinScientific where
