@@ -12,7 +12,8 @@ module Coinbase.Exchange.Rest
 
 import           Control.Monad.Except
 import           Control.Monad.Reader
-import           Control.Monad.Trans.Resource
+import           Control.Monad.Catch
+import           Control.Monad.Catch
 import           Crypto.Hash
 import           Data.Aeson
 import           Data.Byteable
@@ -21,7 +22,6 @@ import qualified Data.ByteString.Base64       as Base64
 import qualified Data.ByteString.Char8        as CBS
 import qualified Data.ByteString.Lazy         as LBS
 import           Data.Conduit
-import           Data.Conduit.Attoparsec      (sinkParser)
 import qualified Data.Conduit.Binary          as CB
 import qualified Data.Text                    as T
 import qualified Data.Text.Encoding           as T
@@ -43,7 +43,8 @@ voidBody = Nothing
 
 coinbaseGet :: ( ToJSON a
                , FromJSON b
-               , MonadResource m
+               , MonadIO m
+               , MonadThrow m
                , MonadReader ExchangeConf m
                , MonadError ExchangeFailure m )
             => Signed -> Path -> Maybe a -> m b
@@ -51,7 +52,8 @@ coinbaseGet sgn p ma = coinbaseRequest "GET" sgn p ma >>= processResponse True
 
 coinbasePost :: ( ToJSON a
                 , FromJSON b
-                , MonadResource m
+                , MonadIO m
+                , MonadThrow m
                 , MonadReader ExchangeConf m
                 , MonadError ExchangeFailure m )
              => Signed -> Path -> Maybe a -> m b
@@ -59,24 +61,27 @@ coinbasePost sgn p ma = coinbaseRequest "POST" sgn p ma >>= processResponse True
 
 coinbaseDelete :: ( ToJSON a
                   , FromJSON b
-                  , MonadResource m
-                  , MonadReader ExchangeConf m
+                 , MonadIO m
+                 , MonadThrow m
+                 , MonadReader ExchangeConf m
                   , MonadError ExchangeFailure m )
                => Signed -> Path -> Maybe a -> m b
 coinbaseDelete sgn p ma = coinbaseRequest "DELETE" sgn p ma >>= processResponse True
 
 coinbaseDeleteDiscardBody :: ( ToJSON a
-                             , MonadResource m
+                             , MonadIO m
+                             , MonadThrow m
                              , MonadReader ExchangeConf m
                              , MonadError ExchangeFailure m )
                              => Signed -> Path -> Maybe a -> m ()
 coinbaseDeleteDiscardBody sgn p ma = coinbaseRequest "DELETE" sgn p ma >>= processEmpty
 
 coinbaseRequest :: ( ToJSON a
-                   , MonadResource m
+                   , MonadIO m
+                   , MonadThrow m
                    , MonadReader ExchangeConf m
                    , MonadError ExchangeFailure m )
-                => Method -> Signed -> Path -> Maybe a -> m (Response (ResumableSource m BS.ByteString))
+                => Method -> Signed -> Path -> Maybe a -> m (Response BS.ByteString)
 coinbaseRequest meth sgn p ma = do
         conf <- ask
         req  <- case apiType conf of
@@ -88,14 +93,16 @@ coinbaseRequest meth sgn p ma = do
                                           ]
                        }
 
-        flip http (manager conf) =<< signMessage True sgn meth p
-                                 =<< encodeBody ma req'
+        resp <- flip httpLbs (manager conf) =<< signMessage True sgn meth p
+                                            =<< encodeBody ma req'
+        return (LBS.toStrict <$> resp)
 
 realCoinbaseRequest :: ( ToJSON a
-                           , MonadResource m
+                           , MonadIO m
+                           , MonadThrow m
                            , MonadReader ExchangeConf m
                            , MonadError ExchangeFailure m )
-                        => Method -> Signed -> Path -> Maybe a -> m (Response (ResumableSource m BS.ByteString))
+                        => Method -> Signed -> Path -> Maybe a -> m (Response BS.ByteString)
 realCoinbaseRequest meth sgn p ma = do
         conf <- ask
         req  <- case apiType conf of
@@ -108,8 +115,10 @@ realCoinbaseRequest meth sgn p ma = do
                                           ]
                        }
 
-        flip http (manager conf) =<< signMessage False sgn meth p
-                                 =<< encodeBody ma req'
+        resp <- flip httpLbs (manager conf) =<< signMessage False sgn meth p
+                                            =<< encodeBody ma req'
+        return (LBS.toStrict <$> resp)
+
 
 encodeBody :: (ToJSON a, Monad m)
            => Maybe a -> Request -> m Request
@@ -152,27 +161,24 @@ signMessage _ False _ _ req = return req
 --
 
 processResponse :: ( FromJSON b
-                   , MonadResource m
                    , MonadReader ExchangeConf m
                    , MonadError ExchangeFailure m )
-                => IsForExchange -> Response (ResumableSource m BS.ByteString) -> m b
+                => IsForExchange -> Response BS.ByteString -> m b
 processResponse isForExchange res =
     case responseStatus res of
         s | s == status200 || (s == created201 && not isForExchange) ->
-            do body <- responseBody res $$+- sinkParser (fmap (\x -> {-trace (show x)-} fromJSON x) json)
-               case body of
-                   Success b -> return b
-                   Error  er -> throwError $ ParseFailure $ T.pack er
+               case eitherDecode' (LBS.fromStrict $ responseBody res) of
+                   Right b -> return b
+                   Left er -> throwError $ ParseFailure $ T.pack er
 
-          | otherwise -> do body <- responseBody res $$+- CB.sinkLbs
-                            throwError $ ApiFailure $ T.decodeUtf8 $ LBS.toStrict body
+          | otherwise ->  throwError
+                        $ ApiFailure
+                        $ T.decodeUtf8
+                        $ responseBody res
 
-processEmpty :: ( MonadResource m
-                , MonadReader ExchangeConf m
+processEmpty :: ( MonadReader ExchangeConf m
                 , MonadError ExchangeFailure m )
-             => Response (ResumableSource m BS.ByteString) -> m ()
-processEmpty res =
-    case responseStatus res of
-        s | s == status200 -> return ()
-          | otherwise      -> do body <- responseBody res $$+- CB.sinkLbs
-                                 throwError $ ApiFailure $ T.decodeUtf8 $ LBS.toStrict body
+             => Response BS.ByteString -> m ()
+processEmpty res
+    | responseStatus res == status200 = return ()
+    | otherwise                       = throwError $ ApiFailure $ T.decodeUtf8 $ responseBody res

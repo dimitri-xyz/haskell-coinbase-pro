@@ -50,13 +50,13 @@ tests conf = testGroup "Private"
                                             assertEqual "accounts match" usdAccount ac
                                         )
 
-        ,testCase "getUSDAccountLedger" (do as <- run_getAccountList conf
-                                            let usdAccount = findUSDAccount as
-                                            es <- run_getAccountLedger conf (accId usdAccount)
-                                            case es of
-                                                [] -> assertFailure "Received empty list of ledger entries" -- must not be empty to test parser
-                                                _  -> return ()
-                                        )
+        , testCase "getUSDAccountLedger" ( do as <- run_getAccountList conf
+                                              let usdAccount = findUSDAccount as
+                                              es <- run_getAccountLedger conf (accId usdAccount)
+                                              case es of
+                                                  [] -> assertFailure "Received empty list of ledger entries" -- must not be empty to test parser
+                                                  _  -> return ()
+                                         )
 
         , testCase "placeOrder"         (do o   <- creatNewLimitOrder
                                             oid <- run_placeOrder conf o             -- limit order

@@ -30,6 +30,7 @@ library
 
     build-depends:      base    >= 4 && < 5
                     ,   mtl
+                    ,   monad-control
                     ,   resourcet
                     ,   transformers-base
                     ,   conduit
@@ -44,7 +45,6 @@ library
                     ,   time
                     ,   scientific
                     ,   uuid
-                    ,   uuid-aeson
                     ,   vector
                     ,   hashable
                     ,   deepseq
@@ -104,6 +104,7 @@ test-suite test-coinbase
                     ,   tasty-hunit
                     ,   QuickCheck
                     ,   quickcheck-instances
+                    ,   generic-random
 
                     ,   uuid
                     ,   bytestring
@@ -117,8 +118,6 @@ test-suite test-coinbase
                     ,   async
                     ,   websockets
                     ,   aeson
-                    ,   aeson-qq
                     ,   unordered-containers
-                    ,   generic-random
 
                     ,   haskell-coinbase-pro

@@ -2,6 +2,4 @@ flags: {}
 packages:
 - '.'
 extra-deps:
-- aeson-1.0.2.1
-- uuid-aeson-0.1.0.0
-resolver: lts-9.5
+resolver: lts-15.12

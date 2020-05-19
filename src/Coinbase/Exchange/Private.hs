@@ -27,7 +27,7 @@ module Coinbase.Exchange.Private
 
 import           Control.Monad.Except
 import           Control.Monad.Reader
-import           Control.Monad.Trans.Resource
+import           Control.Monad.Catch
 import           Data.Char
 import           Data.List
 import qualified Data.Text                       as T
@@ -40,51 +40,51 @@ import           Coinbase.Exchange.Types.Private
 
 -- Accounts
 
-getAccountList :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getAccountList :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
                => m [Account]
 getAccountList = coinbaseGet True "/accounts" voidBody
 
-getAccount :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getAccount :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
            => AccountId -> m Account
 getAccount (AccountId i) = coinbaseGet True ("/accounts/" ++ toString i) voidBody
 
-getAccountLedger :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getAccountLedger :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
                  => AccountId -> m [Entry]
 getAccountLedger (AccountId i) = coinbaseGet True ("/accounts/" ++ toString i ++ "/ledger") voidBody
 
-getAccountHolds :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getAccountHolds :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
                 => AccountId -> m [Hold]
 getAccountHolds (AccountId i) = coinbaseGet True ("/accounts/" ++ toString i ++ "/holds") voidBody
 
 -- Orders
 
-createOrder :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+createOrder :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
             => NewOrder -> m OrderId
 createOrder = liftM ocId . coinbasePost True "/orders" . Just
 
-cancelOrder :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+cancelOrder :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
             => OrderId -> m ()
 cancelOrder (OrderId o) = coinbaseDeleteDiscardBody True ("/orders/" ++ toString o) voidBody
 
-cancelAllOrders :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+cancelAllOrders :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
                 => Maybe ProductId -> m [OrderId]
 cancelAllOrders prodId = coinbaseDelete True ("/orders" ++ opt prodId) voidBody
     where opt Nothing   = ""
           opt (Just id) = "?product_id=" ++ T.unpack (unProductId id)
 
-getOrderList :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getOrderList :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
              => [OrderStatus] -> m [Order]
 getOrderList os = coinbaseGet True ("/orders?" ++ query os) voidBody
     where query [] = "status=open&status=pending&status=active"
           query xs = intercalate "&" $ map (\x -> "status=" ++ map toLower (show x)) xs
 
-getOrder :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getOrder :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
          => OrderId -> m Order
 getOrder (OrderId o) = coinbaseGet True ("/orders/" ++ toString o) voidBody
 
 -- Fills
 
-getFills :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getFills :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
          => Maybe OrderId -> Maybe ProductId -> m [Fill]
 getFills moid mpid = coinbaseGet True ("/fills?" ++ oid ++ "&" ++ pid) voidBody
     where oid = case moid of Just  v -> "order_id=" ++ toString (unOrderId v)
@@ -94,22 +94,22 @@ getFills moid mpid = coinbaseGet True ("/fills?" ++ oid ++ "&" ++ pid) voidBody
 
 -- Transfers
 
-createTransfer :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+createTransfer :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
                => TransferToCoinbase -> m TransferToCoinbaseResponse
 createTransfer = coinbasePost True "/transfers" . Just
 
 createCryptoWithdrawal
-    :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+    :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
     => CryptoWithdrawal
     -> m CryptoWithdrawalResp
 createCryptoWithdrawal = coinbasePost True "/withdrawals/crypto" . Just
 
 -- Reports
 
-createReport :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+createReport :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
              => ReportRequest -> m ReportInfo
 createReport = coinbasePost True "/reports" . Just
 
-getReportStatus :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getReportStatus :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
              => ReportId -> m ReportInfo
 getReportStatus (ReportId r) = coinbaseGet True ("/reports/" ++ toString r) voidBody

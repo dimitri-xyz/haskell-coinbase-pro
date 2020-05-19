@@ -20,7 +20,6 @@ import           Data.Text           (Text)
 import qualified Data.Text           as T
 import           Data.Time
 import           Data.UUID
-import           Data.UUID.Aeson     ()
 import           Data.Word
 import           GHC.Generics
 import           Text.Read           (readMaybe)

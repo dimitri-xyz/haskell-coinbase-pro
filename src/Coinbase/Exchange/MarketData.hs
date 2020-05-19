@@ -24,11 +24,10 @@ module Coinbase.Exchange.MarketData
 
 import           Control.Monad.Except
 import           Control.Monad.Reader
-import           Control.Monad.Trans.Resource
+import           Control.Monad.Catch
 import           Data.List
 import qualified Data.Text                          as T
 import           Data.Time
-import           Data.UUID.Aeson                    ()
 
 #if MIN_VERSION_time(1,5,0)
 import           Data.Time.Format                   (defaultTimeLocale)
@@ -43,34 +42,34 @@ import           Coinbase.Exchange.Types.MarketData
 
 -- Products
 
-getProducts :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getProducts :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
             => m [Product]
 getProducts = coinbaseGet False "/products" voidBody
 
 -- Order Book
 
-getTopOfBook :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getTopOfBook :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
              => ProductId -> m (Book Aggregate)
 getTopOfBook (ProductId p) = coinbaseGet False ("/products/" ++ T.unpack p ++ "/book?level=1") voidBody
 
-getTop50OfBook :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getTop50OfBook :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
                => ProductId -> m (Book Aggregate)
 getTop50OfBook (ProductId p) = coinbaseGet False ("/products/" ++ T.unpack p ++ "/book?level=2") voidBody
 
-getOrderBook :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getOrderBook :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
              => ProductId -> m (Book OrderId)
 getOrderBook (ProductId p) = coinbaseGet False ("/products/" ++ T.unpack p ++ "/book?level=3") voidBody
 
 -- Product Ticker
 
-getProductTicker :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getProductTicker :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
                  => ProductId -> m Tick
 getProductTicker (ProductId p) = coinbaseGet False ("/products/" ++ T.unpack p ++ "/ticker") voidBody
 
 -- Product Trades
 
 -- | Currently Broken: coinbase api doesn't return valid ISO 8601 dates for this route.
-getTrades :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getTrades :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
           => ProductId -> m [Trade]
 getTrades (ProductId p) = coinbaseGet False ("/products/" ++ T.unpack p ++ "/trades") voidBody
 
@@ -80,7 +79,7 @@ type StartTime  = UTCTime
 type EndTime    = UTCTime
 type Scale      = Int
 
-getHistory :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getHistory :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
            => ProductId -> Maybe StartTime -> Maybe EndTime -> Maybe Scale -> m [Candle]
 getHistory (ProductId p) start end scale = coinbaseGet False path voidBody
     where path   = "/products/" ++ T.unpack p ++ "/candles?" ++ params
@@ -96,18 +95,18 @@ getHistory (ProductId p) start end scale = coinbaseGet False path voidBody
 
 -- Product Stats
 
-getStats :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getStats :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
          => ProductId -> m Stats
 getStats (ProductId p) = coinbaseGet False ("/products/" ++ T.unpack p ++ "/stats") voidBody
 
 -- Exchange Currencies
 
-getCurrencies :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getCurrencies :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
               => m [Currency]
 getCurrencies = coinbaseGet False "/currencies" voidBody
 
 -- Exchange Time
 
-getExchangeTime :: (MonadResource m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
+getExchangeTime :: (MonadIO m, MonadThrow m, MonadReader ExchangeConf m, MonadError ExchangeFailure m)
                 => m ExchangeTime
 getExchangeTime = coinbaseGet False "/time" voidBody

@@ -3,24 +3,10 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages:
-- completed:
-    hackage: aeson-1.0.2.1@sha256:cf848d5d07a3e6962d7a274d452c772bc1c413a0f9f2d5f112fdde4556a7d7f1,5796
-    pantry-tree:
-      size: 5948
-      sha256: b91857860ef3cefc374e62b64bc10fe94c1932729f69c8c8261d7e8c1d5358e2
-  original:
-    hackage: aeson-1.0.2.1
-- completed:
-    hackage: uuid-aeson-0.1.0.0@sha256:5fe65c563ef474292cf59cda8e36416dd75a60a05fc1fb8be43a0bd2eba1d814,874
-    pantry-tree:
-      size: 327
-      sha256: 206fd0b2fccd183e65496bf936843c944a13bf8ca7a6bf3acb00f66d06fdd1ab
-  original:
-    hackage: uuid-aeson-0.1.0.0
+packages: []
 snapshots:
 - completed:
-    size: 535471
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/9/5.yaml
-    sha256: 452763f820c6cf01f7c917c71dd4e172578d7e53a7763bce863b99f9a8bc843d
-  original: lts-9.5
+    size: 494635
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/15/12.yaml
+    sha256: a71c4293d8f461f455ff0d9815dfe4ab2f1adacd7e0bbc9a218f46ced8c4929a
+  original: lts-15.12

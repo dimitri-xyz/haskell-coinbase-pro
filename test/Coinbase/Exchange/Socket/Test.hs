@@ -8,13 +8,12 @@ import Control.Concurrent
 import Control.Concurrent.Async
 import Control.Monad
 import Data.Aeson
-import Data.Aeson.QQ -- TODO: Replace with Aeson.QQ.Simple after
-                     -- updating to aeson-1.4.2.0 or newer
+import Data.Aeson.QQ.Simple
+
 import Data.ByteString.Lazy (fromStrict)
 import Data.UUID
 
-import Generic.Random.Generic --TODO: The final `.Generic` will go away after
-                              -- updating to newer version
+import Generic.Random
 
 import Test.QuickCheck.Arbitrary
 import Test.QuickCheck.Instances
@@ -761,7 +760,7 @@ decodeInvertsEncode x =
 -- in property tests using QuickCheck
 
 instance Arbitrary Channel where
-  arbitrary = elements allChannels
+  arbitrary = genericArbitraryU
 
 instance Arbitrary Subscription where
   arbitrary = genericArbitraryU
@@ -772,9 +771,6 @@ instance Arbitrary (Status Currency) where
 instance Arbitrary (Status Product) where
   arbitrary = genericArbitraryU
 
--- TODO: The two instances for `Status` can be combined in a single instance for
--- `Status a` with `liftArbitrary`, but it isn't available in the old version
--- of QuickCheck we're using.
 instance Arbitrary Product where
   arbitrary = genericArbitraryU
 
@@ -836,10 +832,3 @@ instance Arbitrary ClientOrderId where
 
 instance Arbitrary Reason where
   arbitrary = genericArbitraryU
-
---------------------------------------------------------------------------------
--- FIXME: This is a hack. Newer versions of the `quickcheck-instances` package
--- provide a proper `Arbitrary` instance for `UUID`. Delete this after updating
--- package dependencies.
-instance Arbitrary UUID where
-  arbitrary = elements [nil]

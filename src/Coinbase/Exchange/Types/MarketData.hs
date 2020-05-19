@@ -20,7 +20,6 @@ import           Data.String
 import           Data.Text                    (Text)
 import           Data.Time
 import           Data.Time.Clock.POSIX
-import           Data.UUID.Aeson              ()
 import qualified Data.Vector                  as V
 import           Data.Word
 import           GHC.Generics
