@@ -78,7 +78,7 @@ The `runExchange` action is a type-specialized version of the more general `runE
 
 ### WebSocket API
 
-To subscribe to streaming market data via the WebSocket API, extract the `ApiType` from the `ExchangeConf` and pass it to `subscribe` along with the product IDs of the relevant markets and a WebSocket `ClientApp` to consume received data:
+To subscribe to streaming market data via the WebSocket API, extract the `ApiType` from the `ExchangeConf` and pass it to `subscribe` along with a list of product IDs of the relevant markets, a list of channels to subscribe to, and a WebSocket `ClientApp` to consume received data:
 
 ```haskell
 > :set -XOverloadedStrings
@@ -86,7 +86,7 @@ To subscribe to streaming market data via the WebSocket API, extract the `ApiTyp
 > import Data.ByteString
 > import Network.WebSockets
 > :{
-| subscribe (apiType conf) [ProductId "BTC-USD""] $ \conn ->
+| subscribe (apiType conf) [ProductId "BTC-USD"] [Heartbeat, Ticker, User] $ \conn ->
 |   forever $ do
 |     data <- receiveData conn
 |     print (data :: ByteString)
@@ -94,7 +94,9 @@ To subscribe to streaming market data via the WebSocket API, extract the `ApiTyp
 
 ```
 
-See the documentation for the [`websockets` package](http://hackage.haskell.org/package/websockets) for details of working with WebSockets.
+This example code prints the raw JSON sent by the server. See the documentation for the [`websockets` package](http://hackage.haskell.org/package/websockets) for details of working with WebSockets.
+
+Note that `subscribe` requests data on all of the specified channels for all of the specified markets. Call `subscribe` multiple times to request data on different channels for different markets.
  
 ## Related Projects
 
